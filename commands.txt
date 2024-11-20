@@ -30,6 +30,8 @@ git add .
     Stages changes to be committed.
 git commit -m "brief description of changes"
     Commits the staged changes.
+git push
+    Pushes changes
 Go to GitHub
     Submit a pull request for your changes to be reviewed by an admin or collaborator.
     Once approved, or if you're an admin:
