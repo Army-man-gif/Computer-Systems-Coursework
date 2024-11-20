@@ -1,0 +1,44 @@
+For Admin:
+git status
+    Shows the status of the repository, indicating any changes that haven't been committed yet.
+git add .
+    Stages all changes in the repository, preparing them for a commit.
+    Must be in the repository folder.
+git commit -m "brief description of changes"
+    Commits the changes with a message describing what was changed.
+git push
+    Pushes the committed changes to the main branch on the remote repository (origin).
+
+
+For Non-Admin/Admin (following normal procedure):
+
+
+git status
+    Shows the status of the repository.
+
+git checkout -b branch-name
+    Creates a new local branch and checks it out.
+    The -b flag creates the branch, and it automatically switches to it.
+git checkout branch-name
+    Switches to existing branch
+git pull origin branch-name
+    Must already be in branch to pull most recent changes from repository which will update local branch
+git push -u origin branch-name
+    Pushes your new local branch to the remote repository (origin).
+    The -u flag sets up a tracking branch so that in future, Git knows which remote branch to push to or pull from.
+git add .
+    Stages changes to be committed.
+git commit -m "brief description of changes"
+    Commits the staged changes.
+git push
+    Pushes changes
+Go to GitHub
+    Submit a pull request for your changes to be reviewed by an admin or collaborator.
+    Once approved, or if you're an admin:
+Merge the pull request into the main branch on GitHub.
+Admin can skip this step, as they can directly push to main.
+git branch -d branch-name
+    Deletes the branch locally after it has been merged.
+    This is a "safe" delete. It prevents deleting branches that have unmerged changes.
+git push origin --delete branch-name
+    Deletes the branch remotely after it has been merged.
