@@ -1,7 +1,24 @@
 #include<stdio.h>
-int main(){
-    printf("Hi guysssssssssss");
-    printf("test2");
-    printf("Changing code directly in gitHub to simulate another collaborator commiting changes");
-    return 0;
+void openFile(filePath,modeOfOperation){
+   FILE *openedFile;
+    char c;
+    openedFile = fopen(filePath,modeOfOperation);
+    if(openedFile == NULL){
+        printf("Unable to open file");
+    }else{
+        while(1){
+            c = fgetc(openedFile);
+            if(c==EOF){
+                break;
+            }else{
+                printf("%c",c);
+            }
+        }
+        fclose(openedFile);
+    }
+
 }
+int main(){
+    openFile("D:\\Computer systems cwk\\Project\\file.txt","r");
+}
+
