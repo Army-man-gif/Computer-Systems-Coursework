@@ -194,9 +194,9 @@ void command(const char *value,char **log,int size){
             log = AddToLog(log,size,"Appended Line \n");
             size++;
         }else if(strcmp(com,"Lines")==0){
-            printf("%d",numberOfLines(value));
+            printf("Current number of lines: %d",numberOfLines(value));
             printf("\n");
-            log = AddToLog(log,size,"Displayed number of lines \n");
+            log = AddToLog(log,size,"Showed number of lines \n");
             size++;
         }else if(strcmp(com,"Show")==0){
             displayFile(value);
@@ -219,7 +219,7 @@ void command(const char *value,char **log,int size){
             fflush(stdin);
             log = AddToLog(log,size,"Deleted line \n ");
             size++;
-        }else if(strcmp(com,"Show Line")==0){
+    }else if(strcmp(com,"Show Line")==0){
             int line = 0;
             con = 0;
             do{
@@ -235,15 +235,15 @@ void command(const char *value,char **log,int size){
             fflush(stdin);
             log = AddToLog(log,size,"Showed line \n");
             size++;
+        }else if(strcmp(com,"Show Change Log")==0){
+            log = AddToLog(log,size,"Showed change log \n ");
+            size++;
+            showChangeLog(log,size);
         }else{
             printf("\n");
             printf("Invalid command \n");
         }
-        printf("Current number of lines: %d",numberOfLines(value));
-        printf("\n");
-        log = AddToLog(log,size,"Showed number of lines \n");
-        size++;
-        showChangeLog(log,size);
+
         command(value,log,size);
 
     }else{
@@ -258,7 +258,7 @@ int main(){
     strings = (char**)malloc(size * sizeof(char*));
     AddToLog(strings,size,"Original unchanged file");
     showChangeLog(strings,size);
-    char com[] = "Commands:  \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Number of lines in file \n";
+    char com[] = "Commands:  \nShow Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Number of lines in file \n";
     printf("%s",com);
     char f[] = "D:/Computer systems cwk/Project/file.txt";
     command(f,strings,size);
