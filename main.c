@@ -1,13 +1,13 @@
 #include<stdio.h>
 #include<string.h>
 #include <stdlib.h>
-
-int numberOfLines(const char *filePath){
+char f[100] = "D:/Computer systems cwk/Project/file.txt";
+int numberOfLines(){
     FILE *openedFile;
     int number = 0;
     char c;
     int numberOfCharacters = 0;
-    openedFile = fopen(filePath,"r");
+    openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
         printf("Unable to open file");
@@ -28,11 +28,14 @@ int numberOfLines(const char *filePath){
 
     }
 }
-
-int NumberOfCharactersTillSpecificLine(const char *filePath,int Line){
+void move(char *originalPath,char *newPath){
+    rename(originalPath,newPath);
+    strcpy(originalPath,newPath);
+}
+int NumberOfCharactersTillSpecificLine(int Line){
     FILE *openedFile;
     char c = '0';
-    openedFile = fopen(filePath,"r");
+    openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
         printf("Unable to open file");
@@ -60,40 +63,15 @@ int NumberOfCharactersTillSpecificLine(const char *filePath,int Line){
 
     }
 }
-typedef struct {
-    int start;
-    int end;
-} CharacterRange;
-CharacterRange characterRange(const char *filePath,int Line){
-    CharacterRange range = {0,0};
-    int startCharacterNumber = NumberOfCharactersTillSpecificLine(filePath,Line);
-    int endCharacterNumber = startCharacterNumber;
-    FILE *openedFile = fopen(filePath,"r");
-    char current = '\0';
-    fseek(openedFile, startCharacterNumber, SEEK_SET);
-    while(current != EOF){
-        current = fgetc(openedFile);
-        if(current!='\n'){
-            endCharacterNumber++;
-        }else{
-            break;
-        }
-    }
-    range.start = startCharacterNumber;
-    range.end = endCharacterNumber;
-    return range;
-
-}
-void deleteLine(const char *filePath, int Line) {
-
+void deleteLine(int Line) {
     FILE *openedFile;
     char c='0';
-    openedFile = fopen(filePath,"r");
+    openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
         printf("Unable to open file");
     }else{
-        int totalcharacters = NumberOfCharactersTillSpecificLine(filePath,numberOfLines(filePath));
+        int totalcharacters = NumberOfCharactersTillSpecificLine(numberOfLines());
         char buffer[totalcharacters+1];
         int index = 0;
         int count = 1;
@@ -114,16 +92,16 @@ void deleteLine(const char *filePath, int Line) {
             printf("%c",buffer[i]);
         }
         fclose(openedFile);
-        openedFile = fopen(filePath,"w");
+        openedFile = fopen(f,"w");
         fprintf(openedFile,buffer);
         fclose(openedFile);
     }
 } 
-void showLine(const char *filePath,int Line){
-    FILE *openedFile = fopen(filePath,"r");
-    fseek(openedFile,NumberOfCharactersTillSpecificLine(filePath,Line),SEEK_SET);
+void showLine(int Line){
+    FILE *openedFile = fopen(f,"r");
+    fseek(openedFile,NumberOfCharactersTillSpecificLine(Line),SEEK_SET);
     char c = fgetc(openedFile);
-    fseek(openedFile,NumberOfCharactersTillSpecificLine(filePath,Line),SEEK_SET);
+    fseek(openedFile,NumberOfCharactersTillSpecificLine(Line),SEEK_SET);
     while (c != EOF && c != '\n') {
         c = fgetc(openedFile);
         printf("%c",c);
@@ -131,10 +109,10 @@ void showLine(const char *filePath,int Line){
     printf("\n");
     fclose(openedFile);
 }
-void displayFile(const char *filePath){
+void displayFile(){
     FILE *openedFile;
     char c;
-    openedFile = fopen(filePath,"r");
+    openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
         printf("Unable to open file");
@@ -148,18 +126,25 @@ void displayFile(const char *filePath){
         printf("\n");
         fclose(openedFile);
     }
-
 }
-void writeLine(const char *filePath){
+void writeLine(const char *value){
     FILE *openedFile;
-    openedFile = fopen(filePath,"a");
-    if(openedFile == NULL){
-        printf("\n");
-        printf("Unable to open file");
+    openedFile = fopen(f,"a");
+    if(value!=NULL){
+        if(openedFile == NULL){
+            printf("\n");
+            printf("Unable to open file");
+        }else{
+            fprintf(openedFile,value);
+            fclose(openedFile);
+        }
     }else{
         fprintf(openedFile,"\n");
         fclose(openedFile);
     }
+}
+void insertLine(){
+
 }
 char **AddToLog(char **strings,int original_size,const char *addedLog){
     (original_size)++;
@@ -178,7 +163,7 @@ void showChangeLog(char **strings,int size){
         printf("%s\n", strings[i]);
     }
 }
-void command(const char *value,char **log,int size){
+void command(char **log,int size){
     char com[50];
     int con;
     printf("Enter command: ");
@@ -187,6 +172,9 @@ void command(const char *value,char **log,int size){
     com[strcspn(com,"\n")] = '\0';
     if(strcmp(com,"Quit")!=0){
         if(strcmp(com,"Append Line")==0){
+            char value[100];
+            printf("Enter phrase to be appended: \n");
+            fgets(value,sizeof(value),stdin);
             writeLine(value);
             printf("\n");
             printf("Writing successful");
@@ -194,12 +182,12 @@ void command(const char *value,char **log,int size){
             log = AddToLog(log,size,"Appended Line \n");
             size++;
         }else if(strcmp(com,"Lines")==0){
-            printf("Current number of lines: %d",numberOfLines(value));
+            printf("Current number of lines: %d",numberOfLines());
             printf("\n");
             log = AddToLog(log,size,"Showed number of lines \n");
             size++;
         }else if(strcmp(com,"Show")==0){
-            displayFile(value);
+            displayFile();
             log = AddToLog(log,size,"Showed file \n");
             size++;
         }else if(strcmp(com,"Delete Line")==0){
@@ -208,13 +196,13 @@ void command(const char *value,char **log,int size){
             do{
                 printf("Enter the line you want to delete: \n");
                 scanf("%d",&line);
-                if(line>numberOfLines(value) || line<1){
+                if(line>numberOfLines() || line<1){
                     con = 1;
                     printf("Line number out of range \n"); 
                 }
 
             }while(con==1);
-            deleteLine(value,line);
+            deleteLine(line);
             printf("\n");
             fflush(stdin);
             log = AddToLog(log,size,"Deleted line \n ");
@@ -225,13 +213,13 @@ void command(const char *value,char **log,int size){
             do{
                 printf("Enter the line you want to see: \n");
                 scanf("%d",&line);
-                if(line>numberOfLines(value) || line<1){
+                if(line>numberOfLines() || line<1){
                     con = 1;
                     printf("Line number out of range \n");
                 }
 
             }while(con==1);
-            showLine(value,line);
+            showLine(line);
             fflush(stdin);
             log = AddToLog(log,size,"Showed line \n");
             size++;
@@ -244,15 +232,13 @@ void command(const char *value,char **log,int size){
             printf("Invalid command \n");
         }
 
-        command(value,log,size);
+        command(log,size);
 
     }else{
         printf("Program quit");
     }
 }
-
 int main(){
-    printf("Hi");
     char **strings = NULL;
     int size = 0;
     strings = (char**)malloc(size * sizeof(char*));
@@ -260,9 +246,8 @@ int main(){
     showChangeLog(strings,size);
     char com[] = "Commands:  \nShow Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Number of lines in file \n";
     printf("%s",com);
-    char f[] = "D:/Computer systems cwk/Project/file.txt";
-    command(f,strings,size);
+    //move("C:/Users/khait/Downloads/file.txt",f);
+    command(strings,size);
     return 0;
-
 }
 
