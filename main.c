@@ -1,7 +1,18 @@
 #include<stdio.h>
 #include<string.h>
 #include <stdlib.h>
-char f[100] = "D:/Computer systems cwk/Project/file.txt";
+
+
+char f[100]="";
+void convert(){
+    int count = 0;
+    while(f[count]!='\0'){
+        if(f[count]=='\\'){
+            f[count] = '/';
+        }
+        count++;
+    }
+}
 int numberOfLines(){
     FILE *openedFile;
     int number = 0;
@@ -10,7 +21,7 @@ int numberOfLines(){
     openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
-        printf("Unable to open file");
+        printf("Unable to open file \n");
         return -1;
     }else{
         printf("\n");
@@ -131,15 +142,15 @@ void writeLine(const char *value){
     openedFile = fopen(f,"a");
     if(value!=NULL){
         if(openedFile == NULL){
-            printf("\n");
-            printf("Unable to open file");
+            printf("Couldn't open file");
+            fclose(openedFile);
         }else{
             fprintf(openedFile,"\n %s",value);
             fclose(openedFile);
+            printf("\n Writing successful \n");
         }
     }else{
-        fprintf(openedFile,"\n");
-        fclose(openedFile);
+        printf("Invalid entry");
     }
 }
 void insertLine(int Line,const char *value){
@@ -211,9 +222,6 @@ void command(char **log,int size){
             value[strcspn(value, "\n")] = '\0';
             printf("%s",value);
             writeLine(value);
-            printf("\n");
-            printf("Writing successful");
-            printf("\n");
             log = AddToLog(log,size,"Appended Line \n");
             size++;
         }else if(strcmp(com,"Lines")==0){
@@ -239,7 +247,6 @@ void command(char **log,int size){
             }while(con==1);
             deleteLine(line);
             printf("\n");
-            fflush(stdin);
             log = AddToLog(log,size,"Deleted line \n ");
             size++;
     }else if(strcmp(com,"Show Line")==0){
@@ -255,7 +262,6 @@ void command(char **log,int size){
 
             }while(con==1);
             showLine(line);
-            fflush(stdin);
             log = AddToLog(log,size,"Showed line \n");
             size++;
         }else if(strcmp(com,"Insert Line")==0){
@@ -272,7 +278,7 @@ void command(char **log,int size){
             }while(con==1);
             printf("Enter phrase to be inserted: \n");
             fgets(insertPhrase,sizeof(insertPhrase),stdin);
-            value[strcspn(value, "\n")] = '\0';
+            insertPhrase[strcspn(insertPhrase, "\n")] = '\0';
             insertLine(line,insertPhrase);
             log = AddToLog(log,size,"Inserted line \n");
             size++;
@@ -292,6 +298,32 @@ void command(char **log,int size){
     }
 }
 int main(){
+    printf("Enter filepath of file: \n");
+    fgets(f,sizeof(f),stdin);
+    f[strcspn(f, "\n")] = '\0';
+    FILE *openedFile;
+    openedFile = fopen(f,"r");
+    if(openedFile==NULL){
+        
+        printf("Unable to open file. \n");
+        /*
+        char createFileYesOrNo[6];
+        printf("Do you want to create a new file with this name? Type CREATE to make it or NO to not make it \n");
+        Make a function to create a new file. I've written the logic below
+        to call the createFile function you can replace the "createFile" 
+        function name I have given with whatever you want:
+        fgets(createFileYesOrNo,sizeof(createFileYesOrNo),stdin);
+        createFileYesOrNo[strcspn(createFileYesOrNo, "\n")] = '\0';
+        if(strcmp(createFileYesOrNo,"CREATE")==0){
+            createFile();
+        }else{
+        (Line 323 and 324)
+        }
+        */
+        printf("Enter valid filepath: ");
+        main();
+    }
+    convert();
     char **strings = NULL;
     int size = 0;
     strings = (char**)malloc(size * sizeof(char*));
