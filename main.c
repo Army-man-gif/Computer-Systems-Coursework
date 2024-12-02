@@ -1,17 +1,20 @@
 #include<stdio.h>
 #include<string.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 
 char f[100]="";
-void convert(){
+char *convert(char *filePath){
     int count = 0;
-    while(f[count]!='\0'){
-        if(f[count]=='\\'){
-            f[count] = '/';
+    while(filePath[count]!='\0'){
+        if(filePath[count]=='\\'){
+            filePath[count] = '/';
         }
         count++;
     }
+    return filePath;
+
 }
 int numberOfLines(){
     FILE *openedFile;
@@ -122,10 +125,11 @@ void showLine(int Line){
 void displayFile(){
     FILE *openedFile;
     char c;
+    printf("%s",f);
     openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
-        printf("Unable to open file");
+        printf("Unable to open file \n");
     }else{
         printf("\n");
         printf("File contents: \n");
@@ -154,39 +158,39 @@ void writeLine(const char *value){
     }
 }
 void insertLine(int Line,const char *value){
+    int currentLine = 0;
     FILE *openedFile = fopen(f,"r");
-    fseek(openedFile,NumberOfCharactersTillSpecificLine(Line),SEEK_SET);
     char c = '0';
     int count = 0;
-    char before_insert_buffer[NumberOfCharactersTillSpecificLine(numberOfLines())+strlen(value)+1];
-    for(int i=0;i<Line;i++){
-        while(c!=EOF && c!='\n'){
+    char before_insert_buffer[300];
+    if(fgetc(openedFile)=='\0'){
+        printf("Y");
+        memcpy(before_insert_buffer, value, strlen(value));
+        before_insert_buffer[count] = '\n';
+    }else{
+        while ((c = fgetc(openedFile)) != EOF){
+            if(currentLine==Line && c == '\n'){
+                count += strlen(value);
+                memcpy(before_insert_buffer + count, value, strlen(value));
+                before_insert_buffer[count] = '\n';
+                count++;
+            }
             c = fgetc(openedFile);
             before_insert_buffer[count]=c;
             count++;
+            if(c == '\n'){
+                currentLine++;
+            }
         }
-        
-        before_insert_buffer[count]='\n';
-        count++;
     }
-    printf("%s",before_insert_buffer);
-    strcpy(&before_insert_buffer[count], value);
-    count += strlen(value);
-    before_insert_buffer[count]='\n';
-    count++;
-    for(int i=Line;i<numberOfLines();i++){
-        while(c!=EOF && c!='\n'){
-            c = fgetc(openedFile);
-            before_insert_buffer[count]=c;
-            count++;
-        }
-        before_insert_buffer[count]='\n';
-        count++;
-    }
+    before_insert_buffer[count] = '\0';   
+    printf("%s\n",before_insert_buffer);
     fclose(openedFile);
+    strcpy(&before_insert_buffer[count], value);
     openedFile = fopen(f,"w");
     fseek(openedFile,0,SEEK_SET);
     fprintf(openedFile,before_insert_buffer);
+
 
 }
 char **AddToLog(char **strings,int original_size,const char *addedLog){
@@ -208,16 +212,24 @@ void showChangeLog(char **strings,int size){
 }
 
 void createFile(char fileName[]){
-    FILE* file = fopen(fileName,"w");
-    printf("File %s Successfully Created\n",fileName);
+    char *currentDir = getcwd(NULL,0);
+    strcpy(f,currentDir);
+    strcat(f,"/");
+    strcat(f,fileName);
+    strcat(f,".txt");
+    strcpy(f,convert(f));
+    printf("\n %s",f);
+    FILE* file = fopen(f,"a");
+    printf("\n File %s successfully Created \n",fileName);
     fclose(file);
 }
 
 void deleteFile(char fileName[]){
+    strcpy(f,convert(fileName));
     int deleteStatus;
-    deleteStatus = remove(fileName);
+    deleteStatus = remove(f);
     if (deleteStatus == 0){
-        printf("%s Successfully Deleted\n",strcat(fileName,".txt"));
+        printf("%s Successfully Deleted\n",f);
     }
     else{
         printf("File not found\n");
@@ -226,17 +238,23 @@ void deleteFile(char fileName[]){
 
 void copyFile(char fileName[]){
     int currentCharacter;
-    char fileText[] = "";
-    FILE* fileCopyFrom = fopen(fileName,"r");
+    printf("%s",fileName);
+    FILE* fileCopyFrom = fopen(f,"r");
     if (fileCopyFrom != NULL){
         char newFileName[100];
-        printf("Enter New File Name: ");
+        printf("\n Enter New File Name: \n");
         fgets(newFileName,100,stdin);
-        newFileName[strcspn(newFileName, "\n")] = '\0'; 
+        newFileName[strcspn(newFileName, "\n")] = '\0';
+        char *currentDir = getcwd(NULL,0);
+        strcpy(newFileName,currentDir);
+        strcat(newFileName,"/");
+        strcat(newFileName,fileName);
+        strcat(newFileName,".txt");
+        strcpy(newFileName,convert(newFileName));
         printf("%s",newFileName);
         FILE* fileCopyTo = fopen(newFileName,"w");
         if (fileCopyTo == NULL){
-            perror("Error opening file");
+            perror("Error opening file \n");
             printf("Unable to Create New File\n");
         }
         while((currentCharacter = fgetc(fileCopyFrom))!=EOF){
@@ -260,37 +278,39 @@ void copyFile(char fileName[]){
 
 void renameFile(char fileName[]){
     char newFileName[100];
-    printf("Enter New File Name:\n");
+    printf("\n Enter New File Name:\n");
     rename(fileName,strcat(newFileName,".txt"));
     printf("File Successfully Renamed\n");
 }
 
 int checkValidFile(char com[50]){
-    printf("Enter Name of file: \n");
-    fgets(f,sizeof(f),stdin);
-    f[strcspn(f, "\n")] = '\0';
     FILE *openedFile;
     openedFile = fopen(f,"r");
-    if(openedFile==NULL){
-        fclose(openedFile);
-        printf("File not found. \n");
-        if(!(strcmp(com,"Delete File") || strcmp(com,"Copy File") || strcmp(com,"Rename File") || strcmp(com,"Show File"))){
-            char createFileYesOrNo[6];
-            printf("Do you want to create a new file with this name? Type CREATE to make it or NO to not make it \n");
-            fgets(createFileYesOrNo,sizeof(createFileYesOrNo),stdin);
-            createFileYesOrNo[strcspn(createFileYesOrNo, "\n")] = '\0';
-            if(strcmp(createFileYesOrNo,"CREATE")==0){
-                createFile(f);
-                return 1;
-            }else{
-                return 0;
+    if(com[0]!='\0'){
+        if(openedFile==NULL){
+            perror("\n Error opening file \n");
+            fclose(openedFile);
+            printf("File not found. \n");
+            if(!(strcmp(com,"Delete File") || strcmp(com,"Copy File") || strcmp(com,"Rename File") || strcmp(com,"Show File"))){
+                char createFileYesOrNo[6];
+                printf("Do you want to create a new file with this name? Type CREATE to make it or NO to not make it \n");
+                fgets(createFileYesOrNo,sizeof(createFileYesOrNo),stdin);
+                createFileYesOrNo[strcspn(createFileYesOrNo, "\n")] = '\0';
+                if(strcmp(createFileYesOrNo,"CREATE")==0){
+                    createFile(f);
+                    return 1;
+                }else{
+                    return 0;
+                }
             }
+        }else{
+            return 1;
         }
-    }
-    else{
+    }else{
         fclose(openedFile);
-        return 1;
+        return 0;
     }
+    return 0;
 }
 
 void command(char **log,int size){
@@ -303,19 +323,19 @@ void command(char **log,int size){
     fgets(com,sizeof(com),stdin);
     // Replaces the newline with a null terminator
     com[strcspn(com,"\n")] = '\0';
+    strcmp(f,convert(f));
     if(strcmp(com,"Quit")!=0){
         if(strcmp(com,"Append Line")==0 ){
             if(checkValidFile(com)){
                 printf("Enter phrase to be appended: \n");
                 fgets(value,sizeof(value),stdin);
                 value[strcspn(value, "\n")] = '\0';
-                printf("%s",value);
                 writeLine(value);
                 sprintf(logText,"Appended Line to %s\n",f);
                 log = AddToLog(log,size,logText);
                 size++;
             }
-        }else if(strcmp(com,"Show Number of Lines")==0){
+        }else if(strcmp(com,"Lines")==0){
             if(checkValidFile(com)){
                 printf("Current number of lines: %d",numberOfLines());
                 printf("\n");
@@ -373,11 +393,15 @@ void command(char **log,int size){
                 int line = 0;
                 con = 0;
                 do{
+                    line = 0;
                     printf("Enter the line you want to insert at: \n");
                     scanf("%d",&line);
+                    getchar();
                     if(line>numberOfLines() || line<1){
                         con = 1;
                         printf("Line number out of range \n");
+                    }else{
+                        con = 0;
                     }
 
                 }while(con==1);
@@ -395,18 +419,18 @@ void command(char **log,int size){
             size++;
             showChangeLog(log,size);
         }else if(strcmp(com,"Copy File")==0){
-            char copyFileName[100];
-            printf("Enter Name of File to be Copied:\n");
-            fgets(copyFileName,sizeof(copyFileName),stdin);
-            copyFileName[strcspn(copyFileName, "\n")] = '\0';
-            copyFile(copyFileName);
-            sprintf(logText,"Copied File %s\n",copyFileName);
+            printf("Enter the exact filepath of File to be Copied:\n");
+            fgets(f,sizeof(f),stdin);
+            f[strcspn(f, "\n")] = '\0';
+            strcpy(f,convert(f));
+            copyFile(f);
+            sprintf(logText,"Copied File %s\n",f);
             log = AddToLog(log,size,logText);
             size++;
         }
         else if(strcmp(com,"Delete File")==0){
             char deleteFileName[100];
-            printf("Enter Name of File to be Deleted:\n");
+            printf("Enter the exact filepath of File to be Deleted:\n");
             fgets(deleteFileName,sizeof(deleteFileName),stdin);
             deleteFileName[strcspn(deleteFileName, "\n")] = '\0';
             deleteFile(deleteFileName);
@@ -420,15 +444,14 @@ void command(char **log,int size){
             fgets(createFileName,sizeof(createFileName),stdin);
             createFileName[strcspn(createFileName, "\n")] = '\0';
             createFile(createFileName);
-            sprintf(logText,log,size,"Created File %s\n",createFileName);
+            sprintf(logText,"Created File %s\n",createFileName);
             log = AddToLog(log,size,logText);
             size++;
         }
         else if(strcmp(com,"Rename File")==0){
-            char renameFileName[100];
             if (checkValidFile(com)){
                 renameFile(f);
-                sprintf(logText,log,size,log,size,"Renamed File %s\n",f);
+                sprintf(logText,"Renamed File %s\n",f);
                 log = AddToLog(log,size,logText);
                 size++;
             }
@@ -446,14 +469,16 @@ void command(char **log,int size){
 }
 
 int main(){
-
-    convert();
+    printf("Enter filename: ");
+    fgets(f,sizeof(f),stdin);
+    f[strcspn(f, "\n")] = '\0';
+    strcpy(f,convert(f));
     char **strings = NULL;
     int size = 0;
     strings = (char**)malloc(size * sizeof(char*));
     AddToLog(strings,size,"Original unchanged file");
     showChangeLog(strings,size);
-    char com[] = "Commands:  \nInsert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Number of lines in file \n";
+    char com[] = "Commands:  \n Create File \n It creates a file \n Copy file \n  Copies a file \n Delete file \n Deletes a file \n Show file \n Shows a file \n Insert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Shows number of lines in file \n";
     printf("%s",com);
     //move("C:/Users/khait/Downloads/file.txt",f);
     command(strings,size);
