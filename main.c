@@ -212,13 +212,6 @@ void showChangeLog(char **strings,int size){
 }
 
 void createFile(char fileName[]){
-    char *currentDir = getcwd(NULL,0);
-    strcpy(f,currentDir);
-    strcat(f,"/");
-    strcat(f,fileName);
-    strcat(f,".txt");
-    strcpy(f,convert(f));
-    printf("\n %s",f);
     FILE* file = fopen(f,"a");
     printf("\n File %s successfully Created \n",fileName);
     fclose(file);
@@ -236,22 +229,14 @@ void deleteFile(char fileName[]){
     }
 }
 
-void copyFile(char fileName[]){
+void copyFile(){
     int currentCharacter;
-    printf("%s",fileName);
     FILE* fileCopyFrom = fopen(f,"r");
     if (fileCopyFrom != NULL){
         char newFileName[100];
         printf("\n Enter New File Name: \n");
         fgets(newFileName,100,stdin);
         newFileName[strcspn(newFileName, "\n")] = '\0';
-        char *currentDir = getcwd(NULL,0);
-        strcpy(newFileName,currentDir);
-        strcat(newFileName,"/");
-        strcat(newFileName,fileName);
-        strcat(newFileName,".txt");
-        strcpy(newFileName,convert(newFileName));
-        printf("%s",newFileName);
         FILE* fileCopyTo = fopen(newFileName,"w");
         if (fileCopyTo == NULL){
             perror("Error opening file \n");
@@ -279,6 +264,8 @@ void copyFile(char fileName[]){
 void renameFile(char fileName[]){
     char newFileName[100];
     printf("\n Enter New File Name:\n");
+    fgets(newFileName,100,stdin);
+    f[strcspn(f, "\n")] = '\0';
     rename(fileName,strcat(newFileName,".txt"));
     printf("File Successfully Renamed\n");
 }
@@ -323,7 +310,10 @@ void command(char **log,int size){
     fgets(com,sizeof(com),stdin);
     // Replaces the newline with a null terminator
     com[strcspn(com,"\n")] = '\0';
-    strcmp(f,convert(f));
+    printf("Enter filename: ");
+    fgets(f,sizeof(f),stdin);
+    f[strcspn(f, "\n")] = '\0';
+    strcpy(f,convert(f));
     if(strcmp(com,"Quit")!=0){
         if(strcmp(com,"Append Line")==0 ){
             if(checkValidFile(com)){
@@ -419,32 +409,20 @@ void command(char **log,int size){
             size++;
             showChangeLog(log,size);
         }else if(strcmp(com,"Copy File")==0){
-            printf("Enter the exact filepath of File to be Copied:\n");
-            fgets(f,sizeof(f),stdin);
-            f[strcspn(f, "\n")] = '\0';
-            strcpy(f,convert(f));
-            copyFile(f);
+            copyFile();
             sprintf(logText,"Copied File %s\n",f);
             log = AddToLog(log,size,logText);
             size++;
         }
         else if(strcmp(com,"Delete File")==0){
-            char deleteFileName[100];
-            printf("Enter the exact filepath of File to be Deleted:\n");
-            fgets(deleteFileName,sizeof(deleteFileName),stdin);
-            deleteFileName[strcspn(deleteFileName, "\n")] = '\0';
-            deleteFile(deleteFileName);
-            sprintf(logText,"Deleted File %s\n",deleteFileName);
+            deleteFile(f);
+            sprintf(logText,"Deleted File %s\n",f);
             log = AddToLog(log,size,logText);
             size++;
         }
         else if(strcmp(com,"Create File")==0){
-            char createFileName[100];
-            printf("Enter New File Name: \n");
-            fgets(createFileName,sizeof(createFileName),stdin);
-            createFileName[strcspn(createFileName, "\n")] = '\0';
-            createFile(createFileName);
-            sprintf(logText,"Created File %s\n",createFileName);
+            createFile(f);
+            sprintf(logText,"Created File %s\n",f);
             log = AddToLog(log,size,logText);
             size++;
         }
@@ -469,10 +447,6 @@ void command(char **log,int size){
 }
 
 int main(){
-    printf("Enter filename: ");
-    fgets(f,sizeof(f),stdin);
-    f[strcspn(f, "\n")] = '\0';
-    strcpy(f,convert(f));
     char **strings = NULL;
     int size = 0;
     strings = (char**)malloc(size * sizeof(char*));
