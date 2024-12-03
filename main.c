@@ -79,36 +79,33 @@ int NumberOfCharactersTillSpecificLine(int Line){
 }
 void deleteLine(int Line) {
     FILE *openedFile;
-    char c='0';
+    char del_text[NumberOfCharactersTillSpecificLine(numberOfLines()-1)+1];
+    int index = 0;
+    int curLine = 0;
+    char c;
     openedFile = fopen(f,"r");
     if(openedFile == NULL){
         printf("\n");
-        printf("Unable to open file");
+        printf("Unable to open file \n");
     }else{
-        int totalcharacters = NumberOfCharactersTillSpecificLine(numberOfLines());
-        char buffer[totalcharacters+1];
-        int index = 0;
-        int count = 1;
         printf("\n");
         while(c!=EOF){
             c = fgetc(openedFile);
-            if(count!=Line){
-                buffer[index] = c;
+            if(curLine!=Line-1){
+                del_text[index]=c;
+                index++;
             }
             if(c=='\n'){
-                count++;
+                curLine++;
             }
-            index++;
         }
-        buffer[index]='\0';
-        printf("Buffer: \n");
-        for(int i=0;i<index+1;i++){
-            printf("%c",buffer[i]);
-        }
+        del_text[index]='\0';
+        printf("%s\n",del_text);
         fclose(openedFile);
         openedFile = fopen(f,"w");
-        fprintf(openedFile,buffer);
+        fprintf(openedFile,"%s",del_text);
         fclose(openedFile);
+
     }
 } 
 void showLine(int Line){
@@ -201,6 +198,10 @@ void insertLine(int Line,const char *value){
 char **AddToLog(char **strings,int original_size,const char *addedLog){
     (original_size)++;
     strings  = realloc(strings,(original_size)*sizeof(char*));
+    if (!strings) {
+        perror("Memory allocation failed");
+        exit(EXIT_FAILURE);
+    }
     strings[(original_size)-1] = (char*)malloc((strlen(addedLog)+1)*sizeof(char));
     if (strings[original_size - 1] == NULL) {
         fprintf(stderr, "Memory allocation failed for log entry\n");
@@ -352,6 +353,7 @@ void command(char **log,int size){
                 do{
                     printf("Enter the line you want to delete: \n");
                     scanf("%d",&line);
+                    getchar();
                     if(line>numberOfLines() || line<1){
                         con = 1;
                         printf("Line number out of range \n"); 

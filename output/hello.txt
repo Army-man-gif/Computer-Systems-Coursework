@@ -1,9 +1,12 @@
-trying again
-Inserted Phrase
+Line 1
 q
+e
+Line 4
 sdfs
 fssff
 sffsdf
 
-Inserted into last line
-sdffÿ
+Penultimate Line
+sdff
+last
+ewr
