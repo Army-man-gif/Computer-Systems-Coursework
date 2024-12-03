@@ -280,7 +280,6 @@ void renameFile(char fileName[]){
     char newFileName[100];
     printf("\n Enter New File Name:\n");
     fgets(newFileName,100,stdin);
-    fileName[strcspn(fileName, "\n")] = '\0';
     newFileName[strcspn(newFileName, "\n")] = '\0';
     rename(fileName,newFileName);
     if (rename(fileName, newFileName) == 0) {
