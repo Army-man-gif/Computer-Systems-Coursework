@@ -159,7 +159,7 @@ void writeLine(const char *value){
 }
 void insertLine(int Line,const char *value){
     FILE *openedFile;
-    char text[2000];
+    char text[NumberOfCharactersTillSpecificLine(numberOfLines())+strlen(value)+2];
     int index = 0;
     int curLine = 0;
     int checked = 0;
