@@ -158,40 +158,45 @@ void writeLine(const char *value){
     }
 }
 void insertLine(int Line,const char *value){
-    int currentLine = 0;
-    FILE *openedFile = fopen(f,"r");
-    char c = '0';
-    int count = 0;
-    char before_insert_buffer[300];
-    if(fgetc(openedFile)=='\0'){
-        printf("Y");
-        memcpy(before_insert_buffer, value, strlen(value));
-        before_insert_buffer[count] = '\n';
+    FILE *openedFile;
+    char text[2000];
+    int index = 0;
+    int curLine = 0;
+    int checked = 0;
+    char c;
+    printf("%s",f);
+    openedFile = fopen(f,"r");
+    if(openedFile == NULL){
+        printf("\n");
+        printf("Unable to open file \n");
     }else{
-        while ((c = fgetc(openedFile)) != EOF){
-            if(currentLine==Line && c == '\n'){
-                count += strlen(value);
-                memcpy(before_insert_buffer + count, value, strlen(value));
-                before_insert_buffer[count] = '\n';
-                count++;
+        printf("\n");
+        while(c!=EOF){
+            if(curLine==Line-1 && checked==0){
+                for(size_t j=0;j<strlen(value);j++){
+                    text[index] = value[j];
+                    index++;
+                }
+                text[index] = '\n';
+                index++;
+                checked = 1;
+
             }
             c = fgetc(openedFile);
-            before_insert_buffer[count]=c;
-            count++;
-            if(c == '\n'){
-                currentLine++;
+            text[index]=c;
+            index++;
+            if(c=='\n'){
+                curLine++;
             }
         }
+        text[index]='\0';
+        printf("%s\n",text);
+        fclose(openedFile);
+        openedFile = fopen(f,"w");
+        fprintf(openedFile,"%s",text);
+        fclose(openedFile);
+
     }
-    before_insert_buffer[count] = '\0';   
-    printf("%s\n",before_insert_buffer);
-    fclose(openedFile);
-    strcpy(&before_insert_buffer[count], value);
-    openedFile = fopen(f,"w");
-    fseek(openedFile,0,SEEK_SET);
-    fprintf(openedFile,before_insert_buffer);
-
-
 }
 char **AddToLog(char **strings,int original_size,const char *addedLog){
     (original_size)++;
