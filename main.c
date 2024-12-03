@@ -42,9 +42,18 @@ int numberOfLines(){
 
     }
 }
-void move(char *originalPath,char *newPath){
-    rename(originalPath,newPath);
-    strcpy(originalPath,newPath);
+void move(char *originalPath){
+    char newPath[300];
+    printf("Enter filePath of new destination:  ");
+    fgets(newPath,300,stdin);
+    newPath[strcspn(newPath, "\n")] = '\0';
+    strcpy(newPath,convert(newPath));
+    if (rename(originalPath, newPath) == 0) {
+        printf("File moved to %s\n", newPath);
+        strcpy(originalPath, newPath);
+    } else {
+        perror("Error moving file");
+    }
 }
 int NumberOfCharactersTillSpecificLine(int Line){
     FILE *openedFile;
@@ -271,9 +280,14 @@ void renameFile(char fileName[]){
     char newFileName[100];
     printf("\n Enter New File Name:\n");
     fgets(newFileName,100,stdin);
-    f[strcspn(f, "\n")] = '\0';
-    rename(fileName,strcat(newFileName,".txt"));
-    printf("File Successfully Renamed\n");
+    fileName[strcspn(fileName, "\n")] = '\0';
+    newFileName[strcspn(newFileName, "\n")] = '\0';
+    rename(fileName,newFileName);
+    if (rename(fileName, newFileName) == 0) {
+        printf("File Successfully Renamed to %s\n", newFileName);
+    } else {
+        perror("Error renaming file");
+    }
 }
 
 int checkValidFile(char com[50]){
@@ -281,9 +295,7 @@ int checkValidFile(char com[50]){
     openedFile = fopen(f,"r");
     if(com[0]!='\0'){
         if(openedFile==NULL){
-            perror("\n Error opening file \n");
             fclose(openedFile);
-            printf("File not found. \n");
             if(!(strcmp(com,"Delete File") || strcmp(com,"Copy File") || strcmp(com,"Rename File") || strcmp(com,"Show File"))){
                 char createFileYesOrNo[6];
                 printf("Do you want to create a new file with this name? Type CREATE to make it or NO to not make it \n");
@@ -312,14 +324,23 @@ void command(char **log,int size){
     char insertPhrase[100];
     char logText[50] = "";
     int con;
-    printf("Enter command: ");
+    printf("Enter command: \n");
     fgets(com,sizeof(com),stdin);
     // Replaces the newline with a null terminator
     com[strcspn(com,"\n")] = '\0';
-    printf("Enter filename: ");
-    fgets(f,sizeof(f),stdin);
-    f[strcspn(f, "\n")] = '\0';
-    strcpy(f,convert(f));
+    if(strcmp(com,"Show Change Log")!=0){
+        if(strcmp(com,"Move")==0){
+            printf("Enter filePath of file to move: ");
+        }else if(strcmp(com,"Create File")==0){
+            printf("Enter name of file you want to create: ");
+        }else{
+            printf("Enter filename: ");
+        }
+        fgets(f,sizeof(f),stdin);
+        strcpy(f,convert(f));
+        f[strcspn(f, "\n")] = '\0';
+
+    }
     if(strcmp(com,"Quit")!=0){
         if(strcmp(com,"Append Line")==0 ){
             if(checkValidFile(com)){
@@ -328,6 +349,13 @@ void command(char **log,int size){
                 value[strcspn(value, "\n")] = '\0';
                 writeLine(value);
                 sprintf(logText,"Appended Line to %s\n",f);
+                log = AddToLog(log,size,logText);
+                size++;
+            }
+        }else if(strcmp(com,"Move")==0){
+            if(checkValidFile(com)){
+                sprintf(logText,"Moved fjle %s\n",f);
+                move(f);
                 log = AddToLog(log,size,logText);
                 size++;
             }
@@ -459,7 +487,7 @@ int main(){
     strings = (char**)malloc(size * sizeof(char*));
     AddToLog(strings,size,"Original unchanged file");
     showChangeLog(strings,size);
-    char com[] = "Commands:  \n Create File \n It creates a file \n Copy file \n  Copies a file \n Delete file \n Deletes a file \n Show file \n Shows a file \n Insert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Shows number of lines in file \n";
+    char com[] = "Commands:  \n Create File \n It creates a file \n Copy file \n  Copies a file \n Delete file \n Deletes a file \n Show file \n Shows a file \n Insert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Shows number of lines in file \n Move \n Moves file to different location \n Rename File  \n Renames File \n";
     printf("%s",com);
     //move("C:/Users/khait/Downloads/file.txt",f);
     command(strings,size);
