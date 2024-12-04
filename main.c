@@ -330,14 +330,23 @@ void command(char **log,int size){
     if(strcmp(com,"Show Change Log")!=0){
         if(strcmp(com,"Move")==0){
             printf("Enter filePath of file to move: ");
+            fgets(f,sizeof(f),stdin);
+            strcpy(f,convert(f));
+            f[strcspn(f, "\n")] = '\0';
         }else if(strcmp(com,"Create File")==0){
             printf("Enter name of file you want to create: ");
+            fgets(f,sizeof(f),stdin);
+            strcpy(f,convert(f));
+            f[strcspn(f, "\n")] = '\0';
+        }else if(strcmp(com,"Quit")==0){
+            printf(" ");
         }else{
             printf("Enter filename: ");
+            fgets(f,sizeof(f),stdin);
+            strcpy(f,convert(f));
+            f[strcspn(f, "\n")] = '\0';
         }
-        fgets(f,sizeof(f),stdin);
-        strcpy(f,convert(f));
-        f[strcspn(f, "\n")] = '\0';
+
 
     }
     if(strcmp(com,"Quit")!=0){
