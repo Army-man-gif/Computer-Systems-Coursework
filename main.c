@@ -495,7 +495,7 @@ int main(){
     strings = (char**)malloc(size * sizeof(char*));
     AddToLog(strings,size,"Original unchanged file");
     showChangeLog(strings,size);
-    char com[] = "Commands:  \n Create File \n It creates a file \n Copy file \n  Copies a file \n Delete file \n Deletes a file \n Show file \n Shows a file \n Insert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Show: \n Shows file contents \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Shows number of lines in file \n Move \n Moves file to different location \n Rename File  \n Renames File \n";
+    char com[] = "Commands:  \n Create File \n It creates a file \n Copy file \n  Copies a file \n Delete File \n Deletes a file \n Show File \n Shows a file \n Insert Line \n Insert line of specific content at speocific line \n Show Change Log \n Shows change log \n Show Line: \n Show content on specified line \n Append Line: \n Adds new line \n Quit: \n Stops program \n Delete Line \n Deletes a line that you will get to specify after this command \n Lines: \n Shows number of lines in file \n Move \n Moves file to different location \n Rename File  \n Renames File \n";
     printf("%s",com);
     //move("C:/Users/khait/Downloads/file.txt",f);
     command(strings,size);
